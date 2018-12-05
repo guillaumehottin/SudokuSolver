@@ -140,6 +140,30 @@ def possible_from_position(grid, line, column):
     return possible_numbers
 
 
+def find_position_with_least_possible_numbers(grid):
+    """
+    Find the line and the column of the first square with the least possible numbers in the grid
+    :param grid: The grid to solve as an array
+    :return: A tuple containing the index of line and the index of the column of the first square with the least
+    possible numbers in the grid
+    """
+    least_possible_numbers_line = 0
+    least_possible_numbers_column = 0
+    least_possible_numbers_value = 0
+    grid_size = int(sqrt(len(grid)))
+
+    for line in range(grid_size):
+        for column in range(grid_size):
+            if grid[get_position_from_line_and_column(line, column, grid_size)] == 0:
+                possible_numbers_value = len(possible_from_position(grid, line, column))
+                if possible_numbers_value < least_possible_numbers_value or least_possible_numbers_value == 0:
+                    least_possible_numbers_line = line
+                    least_possible_numbers_column = column
+                    least_possible_numbers_value = possible_numbers_value
+
+    return least_possible_numbers_line, least_possible_numbers_column
+
+
 def solve_grid(grid):
     """
     Solve a n by n sudoku grid
@@ -163,17 +187,14 @@ def solve_grid(grid):
 
     grid_done = 0 not in new_grid
     if not grid_done:
-        hypothesis_index = new_grid.index(0)
+        hypothesis_line, hypothesis_column = find_position_with_least_possible_numbers(new_grid)
+        hypothesis_index = get_position_from_line_and_column(hypothesis_line, hypothesis_column, grid_size)
         possible_numbers = possible_from_position(new_grid, int(hypothesis_index/grid_size),
                                                   hypothesis_index % grid_size)
-        new_grids = []
 
         for possible_number in possible_numbers:
             hypothetical_grid = new_grid.copy()
             hypothetical_grid[hypothesis_index] = possible_number
-            new_grids.append(hypothetical_grid)
-
-        for hypothetical_grid in new_grids:
             solved_hypothetical_grid, solved = solve_grid(hypothetical_grid)
             if solved:
                 return solved_hypothetical_grid, True
