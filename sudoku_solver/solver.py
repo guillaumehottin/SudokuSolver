@@ -2,10 +2,23 @@ from math import sqrt
 
 
 def get_position_from_line_and_column(line, column, size):
+    """
+    Get the index in the array representing the grid from the line and column of the targeted element and the size of
+    the grid
+    :param line: The line index of the targeted element (starting at 1)
+    :param column: The column index of the targeted element (starting at 1)
+    :param size: The size of the sudoku grid
+    :return: The index in the array representing the grid of the targeted element
+    """
     return line*size + column
 
 
 def import_grid_from_file(filename):
+    """
+    Imports a sudoku grid from a file
+    :param filename: The path of the sudoku grid
+    :return: An array of length n*n with n being the grid size
+    """
     with open(filename) as file:
         text = file.read().replace('\n', '')
         tab = text.split(',')
@@ -15,10 +28,21 @@ def import_grid_from_file(filename):
 
 
 def pad_number(number, grid_size):
+    """
+    Pad a number with 0s on its left to have exactly grid_size characters
+    :param number: The number to pad
+    :param grid_size: The number of characters to reach
+    :return: A string containing the padded number
+    """
     return (len(str(grid_size))*' ' + str(number))[-len(str(grid_size)):]
 
 
 def pretty_print_grid(grid):
+    """
+    Prints the grid as an expected sudoku grid, with white spaces for numbers to be found and separating lines
+    :param grid: The grid to display as an array
+    :return: None
+    """
     grid_string = ""
     grid_size = int(sqrt(len(grid)))
     for i in range(grid_size):
@@ -39,6 +63,12 @@ def pretty_print_grid(grid):
 
 
 def get_non_used_numbers(numbers, grid_size):
+    """
+    Get the numbers from 1 to grid_size that are not in numbers
+    :param numbers: An array containing the numbers to exclude
+    :param grid_size: The size of the grid
+    :return: An array containing the numbers from 1 to grid_size that are not in numbers
+    """
     non_used_numbers = []
 
     for i in range(grid_size):
@@ -49,18 +79,37 @@ def get_non_used_numbers(numbers, grid_size):
 
 
 def possible_from_vertical_line(grid, column):
+    """
+    Returns the remaining numbers that have to be placed in a given column
+    :param grid: The grid to solve as an array
+    :param column: The index of the column (starting at 1)
+    :return: An array containing the remaining numbers to be placed in the column
+    """
     grid_size = int(sqrt(len(grid)))
     vertical_line = [grid[get_position_from_line_and_column(line, column, grid_size)] for line in range(grid_size)]
     return get_non_used_numbers(vertical_line, grid_size)
 
 
 def possible_from_horizontal_line(grid, line):
+    """
+    Returns the remaining numbers that have to be placed in a given line
+    :param grid: The grid to solve as an array
+    :param line: The index of the line (starting at 1)
+    :return: An array containing the remaining numbers to be placed in the line
+    """
     grid_size = int(sqrt(len(grid)))
     horizontal_line = [grid[get_position_from_line_and_column(line, column, grid_size)] for column in range(grid_size)]
     return get_non_used_numbers(horizontal_line, grid_size)
 
 
 def possible_from_sub_grid(grid, line, column):
+    """
+    Returns the remaining numbers that have to be placed in a square
+    :param grid: The grid to solve as an array
+    :param line: The index of the line (starting at 1)
+    :param column: The index of the column (starting at 1)
+    :return: An array containing the remaining numbers to be placed in the sub grid
+    """
     grid_size = int(sqrt(len(grid)))
     start_line = int(line/int(sqrt(grid_size))) * int(sqrt(grid_size))
     start_column = int(column/int(sqrt(grid_size))) * int(sqrt(grid_size))
@@ -71,6 +120,13 @@ def possible_from_sub_grid(grid, line, column):
 
 
 def possible_from_position(grid, line, column):
+    """
+    Get all the possible numbers that could fit at a given position in the grid
+    :param grid: The grid to solve as an array
+    :param line: The index of the line (starting at 1)
+    :param column: The index of the column (starting at 1)
+    :return: An array containing the numbers that could fit at the given position in the grid
+    """
     possible_horizontal = possible_from_horizontal_line(grid, line)
     possible_vertical = possible_from_vertical_line(grid, column)
     possible_sub_grid = possible_from_sub_grid(grid, line, column)
@@ -85,6 +141,12 @@ def possible_from_position(grid, line, column):
 
 
 def solve_grid(grid):
+    """
+    Solve a n by n sudoku grid
+    :param grid: The sudoku grid, an array of length n*n. Missing numbers are represented by a 0.
+    :return: A tuple containing the solved grid and True if the grid was solved or the input grid and False if it is
+    unsolvable
+    """
     new_grid = grid.copy()
     at_least_one_found = True
     grid_size = int(sqrt(len(grid)))
